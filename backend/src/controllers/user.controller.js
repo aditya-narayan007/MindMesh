@@ -30,17 +30,22 @@ const login = async (req,res) =>{
         return res.status(httpStatus[400]).json({message : "Please enter info"});
     }
     try{
-        const user = await User.find({ username });
+        const user = await User.findOne({ username });
         if(!user){
             return res.status(httpStatus.NOT_FOUND).json({messgae : "please sign up"});
         }
-        if(bcrypt.compare(password , user.password)){
-            let token = crypto.randomBytes(10);
+        const isMatch = await bcrypt.compare(password,user.password);
+        if(isMatch){
+            let token = crypto.randomBytes(20).toString("hex");
+
+            user.token = token;
+            await user.save();
+            return res.status(httpStatus.OK).json({ token : token});
         }
     }
     catch(e){
-
+        return res.status(500).json({ message : "something went wrong"});
     }
 }
 
-export {register};
+export {login , register};
