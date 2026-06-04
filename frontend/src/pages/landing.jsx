@@ -23,7 +23,7 @@ export default function LandingPage(){
                     <h1><span style={{color: "#FF9839"}}> Connect </span><span>with your loved ones</span></h1>
                     <p>Conver a distance by apna videoCall</p>
                     <div role="button">
-                        <Link to="{/home}">Get started</Link>
+                        <Link to="{/auth}">Get started</Link>
                     </div>
                 </div>
                 <div>
