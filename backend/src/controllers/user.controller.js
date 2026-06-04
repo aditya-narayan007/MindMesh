@@ -1,6 +1,6 @@
 import { User } from "../models/user.model.js";
 import httpStatus from "http-status";
-import bcrypt ,{ hash } from "bcrypt";
+import bcrypt from "bcrypt";
 import crypto from "crypto";
 
 const register = async (req,res) => {
@@ -8,7 +8,7 @@ const register = async (req,res) => {
     try {
         const existingUser = await User.findOne({ username });
         if(existingUser){
-            return res.status(httpStatus.FOUND).json({message : "user already exist"});
+            return res.status(httpStatus.CONFLICT).json({message : "user already exist"});
         }
         const hashedPassword = await bcrypt.hash(password , 10);
         const newUser = new User({
@@ -17,22 +17,22 @@ const register = async (req,res) => {
             password : hashedPassword
         })
         await newUser.save();
-        res.status(httpStatus.CREATED).json({messgae : "User Registered"});
+        res.status(httpStatus.CREATED).json({message : "User Registered"});
     }
     catch(e){
-        res.json({message :  `something went wrong : ${e.message} !`});
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({message :  `something went wrong : ${e.message} !`});
     }
 }
 
 const login = async (req,res) =>{
     const {username , password} = req.body;
     if(!username || !password){
-        return res.status(httpStatus[400]).json({message : "Please enter info"});
+        return res.status(httpStatus.BAD_REQUEST).json({message : "Please enter info"});
     }
     try{
         const user = await User.findOne({ username });
         if(!user){
-            return res.status(httpStatus.NOT_FOUND).json({messgae : "please sign up"});
+            return res.status(httpStatus.NOT_FOUND).json({message : "please sign up"});
         }
         const isMatch = await bcrypt.compare(password,user.password);
         if(isMatch){
@@ -47,7 +47,7 @@ const login = async (req,res) =>{
         }
     }
     catch(e){
-        return res.status(500).json({ message : "something went wrong"});
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message : "something went wrong"});
     }
 }
 
